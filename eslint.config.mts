@@ -6,6 +6,7 @@ import { globalIgnores } from 'eslint/config';
 export default tseslint.config(
 	globalIgnores([
 		'node_modules',
+		'.venv',
 		'dist',
 		'esbuild.config.mjs',
 		'version-bump.mjs',
