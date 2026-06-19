@@ -40,9 +40,12 @@ function parseTaskTable(markdown: string): Task[] {
 	const tableStartIndex = lines.findIndex(line => line.trimStart().startsWith('|'));
 	if (tableStartIndex === -1) return [];
 
-	const tableLines = lines
-		.slice(tableStartIndex)
-		.filter(line => line.trimStart().startsWith('|'));
+	const tableLines: string[] = [];
+ 	for (let i = tableStartIndex; i < lines.length; i++) {
+ 		const line = lines[i]!;
+ 		if (!line.trimStart().startsWith('|')) break;
+ 		tableLines.push(line);
+ 	}
 
 	// Skip header and separator rows
 	const dataLines = tableLines.slice(2);

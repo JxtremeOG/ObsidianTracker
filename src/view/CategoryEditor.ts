@@ -79,16 +79,27 @@ export class CategoryEditorModal extends Modal {
 		for (const preset of CATEGORY_COLOR_PRESETS) {
 			const swatch = container.createDiv({ cls: 'priority-command-color-swatch' });
 			swatch.style.backgroundColor = preset;
+			swatch.tabIndex = 0;
+ 			swatch.setAttribute('role', 'button');
+ 			swatch.setAttribute('aria-label', `Set category color to ${preset}`);
 			if (preset === currentColor) {
 				swatch.classList.add('priority-command-color-swatch-active');
 			}
-			swatch.addEventListener('click', () => {
+			const activate = () => {
 				onChange(preset);
 				container.querySelectorAll('.priority-command-color-swatch').forEach(el => {
 					el.classList.remove('priority-command-color-swatch-active');
 				});
 				swatch.classList.add('priority-command-color-swatch-active');
-			});
+			};
+
+			swatch.addEventListener('click', activate);
+ 			swatch.addEventListener('keydown', (evt: KeyboardEvent) => {
+ 				if (evt.key === 'Enter' || evt.key === ' ') {
+ 					evt.preventDefault();
+ 					activate();
+ 				}
+ 			});
 		}
 	}
 }

@@ -1,5 +1,5 @@
 import { stringifyYaml } from 'obsidian';
-import { CURRENT_VERSION } from '../constants';
+import { CURRENT_VERSION, FRONTMATTER_KEY, FRONTMATTER_VERSION_KEY } from '../constants';
 import type { CategoryDef, Task, PriorityCommandData } from '../types';
 
 export function serializePriorityCommandData(data: PriorityCommandData): string {
@@ -13,8 +13,8 @@ function buildFrontmatter(categories: CategoryDef[]): string {
 		cat.color ? { name: cat.name, color: cat.color } : cat.name,
 	);
 	const obj: Record<string, unknown> = {
-		'priority-command': true,
-		'priority-command-version': CURRENT_VERSION,
+		[FRONTMATTER_KEY]: true,
+ 		[FRONTMATTER_VERSION_KEY]: CURRENT_VERSION,
 		'item-categories': categoryData,
 	};
 	const yaml = stringifyYaml(obj).trimEnd();
