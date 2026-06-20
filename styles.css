@@ -2,6 +2,30 @@
 	padding: 16px;
 }
 
+.priority-command-file-header {
+	margin-bottom: 16px;
+}
+
+.priority-command-file-title {
+	margin: 0 0 24px 0;
+	padding: 8px 16px;
+	border-radius: 4px;
+	border: 1px solid transparent;
+	font-size: 28px;
+	font-weight: 700;
+	line-height: 1.2;
+	color: var(--text-normal);
+	background: transparent;
+	cursor: text;
+	outline: none;
+}
+
+.priority-command-file-title:hover,
+.priority-command-file-title:focus {
+	border-color: var(--background-modifier-border);
+	background: var(--background-secondary);
+}
+
 .priority-command-toolbar {
 	display: flex;
 	gap: 8px;
@@ -226,4 +250,25 @@
 
 .priority-command-color-swatch-active {
 	border-color: var(--text-normal);
+}
+
+/* Linked grids modal */
+.priority-command-empty-linked {
+	color: var(--text-muted);
+	font-style: italic;
+	text-align: center;
+	padding: 16px;
+}
+
+/* Source cell */
+.priority-command-cell-source {
+	color: var(--text-muted);
+	font-size: var(--font-ui-smaller);
+	white-space: nowrap;
+}
+
+/* Suggest modal path hint */
+.priority-command-suggest-path {
+	color: var(--text-faint);
+	display: block;
 }
