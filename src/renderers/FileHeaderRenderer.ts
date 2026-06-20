@@ -1,17 +1,28 @@
 import { App, TFile } from 'obsidian';
+import { renderBarChart, renderPieChart } from './ChartRenderer';
+import type { ComputedTask } from '../types';
 
 export function renderFileHeader(
 	container: HTMLElement,
 	file: TFile | null,
 	app: App,
+	tasks?: ComputedTask[],
 ): void {
 	const header = container.createDiv({ cls: 'priority-command-file-header' });
 
+	const left = header.createDiv({ cls: 'priority-command-header-left' });
+
 	const basename = file?.basename ?? 'Untitled';
-	const titleEl = header.createEl('h1', {
+	const titleEl = left.createEl('h1', {
 		cls: 'priority-command-file-title',
 		text: basename,
 	});
+
+	if (tasks && tasks.length > 0) {
+		const charts = header.createDiv({ cls: 'priority-command-header-charts' });
+		charts.appendChild(renderBarChart(tasks));
+		charts.appendChild(renderPieChart(tasks));
+	}
 
 	titleEl.contentEditable = 'true';
 	titleEl.spellcheck = false;

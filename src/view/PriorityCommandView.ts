@@ -102,9 +102,8 @@ export class PriorityCommandView extends TextFileView {
 	private render(): void {
 		this.contentEl.empty();
 
-		renderFileHeader(this.contentEl, this.file, this.app);
-
 		const computed = computeAndSortTasks(this.allTasks);
+		renderFileHeader(this.contentEl, this.file, this.app, computed);
 
 		const resolveCategories = (task: ComputedTask) =>
 			this.sourceDataMap.get(task.sourceFile ?? '')?.categories ?? [];

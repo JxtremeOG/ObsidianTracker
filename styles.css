@@ -3,7 +3,27 @@
 }
 
 .priority-command-file-header {
+	display: flex;
+	align-items: flex-start;
+	gap: 16px;
 	margin-bottom: 16px;
+}
+
+.priority-command-header-left {
+	flex: 1;
+	min-width: 0;
+}
+
+.priority-command-header-charts {
+	display: flex;
+	gap: 12px;
+	flex-shrink: 0;
+	align-items: flex-start;
+}
+
+.priority-command-header-charts svg {
+	width: 220px;
+	height: 170px;
 }
 
 .priority-command-file-title {

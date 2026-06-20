@@ -53,9 +53,8 @@ export class OpsGridView extends TextFileView {
 	private render(): void {
 		this.contentEl.empty();
 
-		renderFileHeader(this.contentEl, this.file, this.app);
-
 		const computed = computeAndSortTasks(this.gridData.tasks);
+		renderFileHeader(this.contentEl, this.file, this.app, computed);
 		const callbacks: RenderCallbacks = {
 			onTaskChange: (index, updatedTask) => this.handleTaskChange(index, updatedTask),
 			onTaskAdd: () => this.handleTaskAdd(),
