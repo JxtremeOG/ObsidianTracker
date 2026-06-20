@@ -1,12 +1,21 @@
 import { parseYaml } from 'obsidian';
 import { TASK_STATUSES } from '../constants';
-import type { CategoryDef, Task, PriorityCommandData, TaskStatus } from '../types';
+import type { CategoryDef, Task, OpsGridData, PriorityCommandData, TaskStatus } from '../types';
 
-export function parsePriorityCommandData(markdown: string): PriorityCommandData {
+export function parseOpsGridData(markdown: string): OpsGridData {
 	const frontmatter = extractFrontmatter(markdown);
 	const categories = parseCategoriesFromFrontmatter(frontmatter);
 	const tasks = parseTaskTable(markdown);
 	return { categories, tasks };
+}
+
+export function parsePriorityCommandData(markdown: string): PriorityCommandData {
+	const frontmatter = extractFrontmatter(markdown);
+	const raw = frontmatter['linked-files'];
+	const linkedFiles = Array.isArray(raw)
+		? raw.filter((item): item is string => typeof item === 'string')
+		: [];
+	return { linkedFiles };
 }
 
 function extractFrontmatter(markdown: string): Record<string, unknown> {
@@ -47,7 +56,6 @@ function parseTaskTable(markdown: string): Task[] {
  		tableLines.push(line);
  	}
 
-	// Skip header and separator rows
 	const dataLines = tableLines.slice(2);
 
 	return dataLines

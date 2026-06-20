@@ -40,7 +40,10 @@ function sortTasks(tasks: ComputedTask[]): ComputedTask[] {
 		if (rankDiff !== 0) return rankDiff;
 		
 		// Can be null as the 'new task' which may not have daysLeft calculated is in this list.
-		if (a.daysLeft == null || b.daysLeft == null) return rankDiff
+		// Treat null daysLeft as "last" within the same priority so sorting stays deterministic.
+ 		if (a.daysLeft == null && b.daysLeft == null) return a.category.localeCompare(b.category);
+ 		if (a.daysLeft == null) return 1;
+ 		if (b.daysLeft == null) return -1;
 		const daysDiff = a.daysLeft - b.daysLeft;
 		if (daysDiff !== 0) return daysDiff;
 

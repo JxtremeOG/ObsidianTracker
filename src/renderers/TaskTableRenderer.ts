@@ -1,6 +1,7 @@
-import { priorityCssClass } from './TaskTableStyler';
-import { renderToolbar } from './TaskTableToolbar';
+import { priorityCssClass } from '../utils/TaskTableStyler';
+import { renderToolbar } from './TaskTableToolbarRenderer';
 import {
+	renderSourceCell,
 	renderCategoryCell,
 	renderDescriptionCell,
 	renderDueDateCell,
@@ -10,9 +11,9 @@ import {
 	renderDaysLeftCell,
 	renderDeleteCell,
 } from './TaskTableCellRenderer';
-import type { CategoryDef, ComputedTask, Priority, RenderCallbacks } from '../types';
+import type { CategoryResolver, ComputedTask, Priority, RenderCallbacks } from '../types';
 
-const COLUMN_HEADERS = [
+const BASE_COLUMN_HEADERS = [
 	'Item Category',
 	'Task Description',
 	'Due Date',
@@ -26,29 +27,32 @@ const COLUMN_HEADERS = [
 export function renderTaskTable(
 	container: HTMLElement,
 	tasks: ComputedTask[],
-	categories: CategoryDef[],
+	resolveCategories: CategoryResolver,
 	callbacks: RenderCallbacks,
 	pendingNewTaskIndex: number | null,
+	showSourceColumn: boolean,
+	linkedFiles?: string[],
 ): void {
 	const wrapper = container.createDiv({ cls: 'priority-command-container' });
+	const headers = showSourceColumn ? ['Source', ...BASE_COLUMN_HEADERS] : BASE_COLUMN_HEADERS;
 
-	renderToolbar(wrapper, callbacks, pendingNewTaskIndex !== null);
+	renderToolbar(wrapper, callbacks, pendingNewTaskIndex !== null, showSourceColumn, linkedFiles);
 
 	const table = wrapper.createEl('table', { cls: 'priority-command-table' });
-	renderHeader(table);
+	renderHeader(table, headers);
 
 	const pendingTask = pendingNewTaskIndex !== null
 		? tasks.find(t => t.originalIndex === pendingNewTaskIndex) ?? null
 		: null;
 	const sortedTasks = tasks.filter(t => t !== pendingTask);
 
-	renderBody(table, sortedTasks, categories, callbacks, pendingTask);
+	renderBody(table, sortedTasks, resolveCategories, callbacks, pendingTask, headers.length, showSourceColumn);
 }
 
-function renderHeader(table: HTMLTableElement): void {
+function renderHeader(table: HTMLTableElement, headers: string[]): void {
 	const thead = table.createEl('thead');
 	const row = thead.createEl('tr');
-	for (const header of COLUMN_HEADERS) {
+	for (const header of headers) {
 		row.createEl('th', { text: header });
 	}
 }
@@ -56,15 +60,17 @@ function renderHeader(table: HTMLTableElement): void {
 function renderBody(
 	table: HTMLTableElement,
 	tasks: ComputedTask[],
-	categories: CategoryDef[],
+	resolveCategories: CategoryResolver,
 	callbacks: RenderCallbacks,
 	pendingTask: ComputedTask | null,
+	columnCount: number,
+	showSourceColumn: boolean,
 ): void {
 	const tbody = table.createEl('tbody');
 
 	if (pendingTask) {
-		renderPriorityGroupRow(tbody, 'New task');
-		renderTaskRow(tbody, pendingTask, categories, callbacks, true);
+		renderPriorityGroupRow(tbody, 'New task', columnCount);
+		renderTaskRow(tbody, pendingTask, resolveCategories, callbacks, true, showSourceColumn);
 	}
 
 	let currentPriority: Priority | null = null;
@@ -72,25 +78,27 @@ function renderBody(
 	for (const task of tasks) {
 		if (task.priority !== currentPriority) {
 			currentPriority = task.priority;
-			renderPriorityGroupRow(tbody, currentPriority);
+			renderPriorityGroupRow(tbody, currentPriority, columnCount);
 		}
-		renderTaskRow(tbody, task, categories, callbacks, false);
+		renderTaskRow(tbody, task, resolveCategories, callbacks, false, showSourceColumn);
 	}
 
 	if (tasks.length === 0 && !pendingTask) {
 		tbody.createEl('tr').createEl('td', {
-			text: 'No tasks yet. Click "add task" to get started.',
-			attr: { colspan: String(COLUMN_HEADERS.length) },
+			text: showSourceColumn
+				? 'No linked Ops Grids yet. Click "Link Ops Grid" to get started.'
+				: 'No tasks yet. Click "add task" to get started.',
+			attr: { colspan: String(columnCount) },
 			cls: 'priority-command-empty',
 		});
 	}
 }
 
-function renderPriorityGroupRow(tbody: HTMLTableSectionElement, label: Priority | 'New task'): void {
+function renderPriorityGroupRow(tbody: HTMLTableSectionElement, label: Priority | 'New task', columnCount: number): void {
 	const row = tbody.createEl('tr', { cls: 'priority-command-group-row' });
 	row.createEl('td', {
 		text: label,
-		attr: { colspan: String(COLUMN_HEADERS.length) },
+		attr: { colspan: String(columnCount) },
 		cls: `priority-command-group-label priority-${priorityCssClass(label)}`,
 	});
 }
@@ -98,15 +106,21 @@ function renderPriorityGroupRow(tbody: HTMLTableSectionElement, label: Priority 
 function renderTaskRow(
 	tbody: HTMLTableSectionElement,
 	task: ComputedTask,
-	categories: CategoryDef[],
+	resolveCategories: CategoryResolver,
 	callbacks: RenderCallbacks,
 	isPending: boolean,
+	showSourceColumn: boolean,
 ): void {
 	const cls = isPending
 		? 'priority-command-row priority-command-row-pending'
 		: `priority-command-row priority-row-${priorityCssClass(task.priority)}`;
 	const row = tbody.createEl('tr', { cls });
 	const index = task.originalIndex;
+	const categories = resolveCategories(task);
+
+	if (showSourceColumn) {
+		renderSourceCell(row, task);
+	}
 
 	renderCategoryCell(row, task, index, categories, callbacks);
 	renderDescriptionCell(row, task, index, callbacks);

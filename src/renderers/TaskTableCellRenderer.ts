@@ -5,7 +5,7 @@ import {
 	applyDueDateColor,
 	applyTodoDateColor,
 	priorityCssClass,
-} from './TaskTableStyler';
+} from '../utils/TaskTableStyler';
 import type { CategoryDef, ComputedTask, RenderCallbacks, Task } from '../types';
 
 export function renderCategoryCell(
@@ -137,6 +137,16 @@ export function renderDeleteCell(
 	});
 	setIcon(btn, 'trash');
 	btn.addEventListener('click', () => callbacks.onTaskDelete(index));
+}
+
+export function renderSourceCell(row: HTMLTableRowElement, task: ComputedTask): void {
+	const basename = task.sourceFile
+		? task.sourceFile.split('/').pop()?.replace(/\.md$/, '') ?? task.sourceFile
+		: '—';
+	row.createEl('td', {
+		text: basename,
+		cls: 'priority-command-cell-source',
+	});
 }
 
 function buildUpdatedTask(task: ComputedTask, updates: Partial<Task>): Task {

@@ -9,6 +9,7 @@ export interface Task {
 	dueDate: string;
 	status: TaskStatus;
 	todoDate: string;
+	sourceFile?: string;
 }
 
 export interface ComputedTask extends Task {
@@ -22,14 +23,21 @@ export interface CategoryDef {
 	color: string;
 }
 
-export interface PriorityCommandData {
+export interface OpsGridData {
 	categories: CategoryDef[];
 	tasks: Task[];
 }
+
+export interface PriorityCommandData {
+	linkedFiles: string[];
+}
+
+export type CategoryResolver = (task: ComputedTask) => CategoryDef[];
 
 export interface RenderCallbacks {
 	onTaskChange: (index: number, task: Task) => void;
 	onTaskAdd: () => void;
 	onTaskDelete: (index: number) => void;
 	onCategoriesEdit: () => void;
+	onManageLinkedGrids?: () => void;
 }
