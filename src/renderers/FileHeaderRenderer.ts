@@ -29,7 +29,9 @@ export function renderFileHeader(
 	titleEl.addEventListener('blur', () => {
 		scheduleRename();
 		if (pendingRename && file) {
-			void app.vault.rename(file, `${pendingRename}.md`);
+			const cleanName = pendingRename.replace(/\.md$/i, '');
+ 			const newPath = file.path.replace(/[^/]+\.md$/i, `${cleanName}.md`);
+ 			void app.vault.rename(file, newPath);
 			pendingRename = null;
 		}
 	});
