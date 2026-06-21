@@ -17,6 +17,14 @@ export class OpsGridView extends TextFileView {
 	constructor(leaf: WorkspaceLeaf, plugin: PriorityCommandPlugin) {
 		super(leaf);
 		this.plugin = plugin;
+
+		this.registerEvent(
+			this.app.workspace.on('active-leaf-change', (leaf) => {
+				if (leaf?.view === this && this.file) {
+					this.render();
+				}
+			})
+		);
 	}
 
 	getViewType(): string {

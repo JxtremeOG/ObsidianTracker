@@ -159,6 +159,11 @@
 	color: var(--text-faint);
 }
 
+.priority-aborted {
+	color: var(--text-faint);
+	text-decoration: line-through;
+}
+
 .priority-new-task {
 	color: var(--text-accent);
 }
@@ -174,6 +179,15 @@
 }
 
 .priority-row-completed .priority-command-cell-description input {
+	text-decoration: line-through;
+}
+
+/* Aborted row styling */
+.priority-row-aborted {
+	opacity: 0.5;
+}
+
+.priority-row-aborted .priority-command-cell-description input {
 	text-decoration: line-through;
 }
 

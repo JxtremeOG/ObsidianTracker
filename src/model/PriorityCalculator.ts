@@ -14,6 +14,7 @@ function computeTask(task: Task, originalIndex: number, today: string): Computed
 
 function computePriority(task: Task, today: string): Priority {
 	if (task.status === 'Completed') return 'Completed';
+	if (task.status === 'Aborted') return 'Aborted';
 	if (task.dueDate && task.dueDate < today) return 'Overdue';
 	if (task.dueDate === today || (task.todoDate && task.todoDate <= today)) return 'High Priority';
 	return 'Flexible';
@@ -33,6 +34,7 @@ function sortTasks(tasks: ComputedTask[]): ComputedTask[] {
 		'High Priority': 1,
 		'Flexible': 2,
 		'Completed': 3,
+		'Aborted': 4,
 	};
 
 	return [...tasks].sort((a, b) => {

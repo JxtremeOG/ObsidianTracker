@@ -7,8 +7,8 @@ export const PRIORITY_COMMAND_KEY = 'priority-command';
 export const PRIORITY_COMMAND_VERSION_KEY = 'priority-command-version';
 export const CURRENT_VERSION = 1;
 
-export const TASK_STATUSES = ['Not Started', 'In Progress', 'Completed'] as const;
-export const PRIORITIES = ['Overdue', 'High Priority', 'Flexible', 'Completed'] as const;
+export const TASK_STATUSES = ['Not Started', 'In Progress', 'Completed', 'Aborted'] as const;
+export const PRIORITIES = ['Overdue', 'High Priority', 'Flexible', 'Completed', 'Aborted'] as const;
 
 export const DEFAULT_CATEGORY_COLOR = '#7a7a7a';
 export const CATEGORY_COLOR_PRESETS = [
