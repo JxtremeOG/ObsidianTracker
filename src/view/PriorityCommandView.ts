@@ -25,10 +25,21 @@ export class PriorityCommandView extends TextFileView {
 	private indexMap: SourceMapping[] = [];
 	private pendingNewTaskIndex: number | null = null;
 	private pendingSourceFile: string | null = null;
+	private renderGeneration = 0;
 
 	constructor(leaf: WorkspaceLeaf, plugin: PriorityCommandPlugin) {
 		super(leaf);
 		this.plugin = plugin;
+
+		this.registerEvent(
+			this.app.workspace.on('active-leaf-change', (leaf) => {
+				if (leaf?.view === this && this.file) {
+					void this.loadLinkedFilesAndRender().catch((err) =>
+ 						console.error('PriorityCommandView: failed to reload linked files', err),
+ 					);
+				}
+			}),
+		);
 	}
 
 	getViewType(): string {
@@ -68,10 +79,11 @@ export class PriorityCommandView extends TextFileView {
 	}
 
 	private async loadLinkedFilesAndRender(): Promise<void> {
-		this.sourceDataMap.clear();
-		this.allTasks = [];
-		this.indexMap = [];
+		const generation = ++this.renderGeneration;
 
+		const sourceDataMap = new Map<string, OpsGridData>();
+		const allTasks: Task[] = [];
+		const indexMap: SourceMapping[] = [];
 		let resolvedPendingIndex: number | null = null;
 
 		for (const path of this.linkedFiles) {
@@ -79,14 +91,16 @@ export class PriorityCommandView extends TextFileView {
 			if (!(file instanceof TFile)) continue;
 
 			const content = await this.app.vault.read(file);
+			if (generation !== this.renderGeneration) return;
+
 			const gridData = parseOpsGridData(content);
-			this.sourceDataMap.set(path, gridData);
+			sourceDataMap.set(path, gridData);
 
 			for (let i = 0; i < gridData.tasks.length; i++) {
 				const task = { ...gridData.tasks[i]!, sourceFile: path };
-				const globalIndex = this.allTasks.length;
-				this.allTasks.push(task);
-				this.indexMap.push({ sourceFile: path, localIndex: i });
+				const globalIndex = allTasks.length;
+				allTasks.push(task);
+				indexMap.push({ sourceFile: path, localIndex: i });
 
 				if (this.pendingSourceFile === path && i === gridData.tasks.length - 1 && this.pendingSourceFile !== null) {
 					resolvedPendingIndex = globalIndex;
@@ -94,6 +108,11 @@ export class PriorityCommandView extends TextFileView {
 			}
 		}
 
+		if (generation !== this.renderGeneration) return;
+
+		this.sourceDataMap = sourceDataMap;
+		this.allTasks = allTasks;
+		this.indexMap = indexMap;
 		this.pendingNewTaskIndex = resolvedPendingIndex;
 
 		this.render();
