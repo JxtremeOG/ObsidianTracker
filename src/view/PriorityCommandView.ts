@@ -34,9 +34,11 @@ export class PriorityCommandView extends TextFileView {
 		this.registerEvent(
 			this.app.workspace.on('active-leaf-change', (leaf) => {
 				if (leaf?.view === this && this.file) {
-					void this.loadLinkedFilesAndRender();
+					void this.loadLinkedFilesAndRender().catch((err) =>
+ 						console.error('PriorityCommandView: failed to reload linked files', err),
+ 					);
 				}
-			})
+			}),
 		);
 	}
 
