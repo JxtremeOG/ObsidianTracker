@@ -40,17 +40,24 @@ function sortTasks(tasks: ComputedTask[]): ComputedTask[] {
 	return [...tasks].sort((a, b) => {
 		const rankDiff = priorityRank[a.priority] - priorityRank[b.priority];
 		if (rankDiff !== 0) return rankDiff;
-		
-		// Can be null as the 'new task' which may not have daysLeft calculated is in this list.
-		// Treat null daysLeft as "last" within the same priority so sorting stays deterministic.
- 		if (a.daysLeft == null && b.daysLeft == null) return a.category.localeCompare(b.category);
- 		if (a.daysLeft == null) return 1;
- 		if (b.daysLeft == null) return -1;
-		const daysDiff = a.daysLeft - b.daysLeft;
-		if (daysDiff !== 0) return daysDiff;
+
+		const aDate = earliestDate(a);
+		const bDate = earliestDate(b);
+
+		// Treat a missing date as "last" within the same priority so sorting stays deterministic.
+		if (aDate == null && bDate == null) return a.category.localeCompare(b.category);
+		if (aDate == null) return 1;
+		if (bDate == null) return -1;
+		if (aDate !== bDate) return aDate < bDate ? -1 : 1;
 
 		return a.category.localeCompare(b.category);
 	});
+}
+
+function earliestDate(task: Task): string | null {
+	const dates = [task.dueDate, task.todoDate].filter((d): d is string => d !== '');
+	if (dates.length === 0) return null;
+	return dates.reduce((min, d) => (d < min ? d : min));
 }
 
 function todayString(): string {
